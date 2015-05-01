@@ -333,6 +333,7 @@
     <Compile Include="Text\IEncodedStringFactory.cs" />
     <Compile Include="Text\RawString.cs" />
     <Compile Include="Text\RawStringFactory.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />

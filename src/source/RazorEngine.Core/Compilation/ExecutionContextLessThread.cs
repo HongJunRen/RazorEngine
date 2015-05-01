@@ -220,6 +220,28 @@ namespace RazorEngine.Compilation
                 t.Join();
             }
         }
+
+        // Not part of EmptyExecutionContext to prevent a deadlock 
+        [SecurityCritical]
+        internal static ExecutionContext GetExecutionContext()
+        {
+            if (Utils.IsMono)
+            {
+                return ExecutionContext.Capture();
+            }
+            else
+            {
+                System.Security.Principal.WindowsImpersonationContext wic = System.Security.Principal.WindowsIdentity.Impersonate(IntPtr.Zero);
+                try
+                {
+                    return ExecutionContext.Capture();
+                }
+                finally
+                {
+                    wic.Undo();
+                }
+            }
+        }
     }
 
     internal static class EmptyExecutionContext {
@@ -231,9 +253,10 @@ namespace RazorEngine.Compilation
         {
             using (var t = ExecutionContextLessThread.Create())
             {
-                empty = t.CallFunc(ExecutionContext.Capture);
+                empty = t.CallFunc(ExecutionContextLessThread.GetExecutionContext);
             }
         }
+
         public static ExecutionContext Empty { get { return empty.CreateCopy(); } }
 
     }
